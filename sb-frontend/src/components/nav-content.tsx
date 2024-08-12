@@ -30,8 +30,8 @@ interface RouteProps {
 
 export function NavContent() {
   return (
-    <nav className="flex gap-2 py-2 border-b w-full justify-between">
-      <div className="flex items-center gap-8 max-w-48">
+    <nav className="flex w-full justify-between py-4 lg:mr-2 sm:mx-auto">
+      <div className="flex items-center gap-4 max-w-48">
       <Image
         src={Logo}
         alt="logo"
@@ -54,8 +54,6 @@ export function NavContent() {
         {route.label}
       </a>
     ))}
-          
-        <ModeToggle />
         
   </nav>
   )
