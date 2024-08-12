@@ -1,60 +1,60 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import LoginImage from "../../public/hero-img/hero-image-2.jpeg";
-import { useRouter } from 'next/navigation'
- 
+import { useRouter } from "next/navigation";
 
-type Props = {}
+type Props = {};
 
-export default function LoginForm({ }: Props) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const router = useRouter()
+export default function LoginForm({}: Props) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
 
-    const validateEmail = (email: string) => {
-      const re = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}/
-      return re.test(email)
+  const validateEmail = (email: string) => {
+    const re = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}/;
+    return re.test(email);
+  };
+
+  const handleSubmit = async (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+    if (!validateEmail(email)) {
+      setError("Invalid email address");
+      return;
     }
-  
-    const handleSubmit = async (event: { preventDefault: () => void }) => {
-        event.preventDefault();
-      if (!validateEmail(email)) {
-        setError('Invalid email address')
-          return
+    try {
+      const response = await fetch("http://localhost:1337/api/Auth/Login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          UserName: email,
+          Password: password,
+        }),
+        credentials: "include",
+      });
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.detail || "Login failed");
       }
-      try {
-          const response = await fetch('http://localhost:1337/api/Auth/Login', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  UserName: email,
-                  Password: password,
-              }),
-              credentials: 'include',
-          });
-          const responseData = await response.json() 
-          console.log('Response status:', response.status)
-          console.log('Response data:', responseData)
-          if (!response.ok) {
-            throw new Error(responseData.detail || 'Login failed'); 
-          }
-          router.push('/transactions') 
-        } catch (err: any) {
-            console.error('Error occurred during login:', err)
-            setError(err.message || 'Login failed. Please check your credentials and try again.')
-        }
+      router.push("/transactions");
+    } catch (err: any) {
+      console.error("Error occurred during login:", err);
+      setError(
+        err.message ||
+          "Login failed. Please check your credentials and try again."
+      );
     }
-    
-    return (
+  };
+
+  return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
@@ -73,8 +73,8 @@ export default function LoginForm({ }: Props) {
                 placeholder="m@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                                required
-                                autoComplete="current-password"
+                required
+                autoComplete="current-password"
               />
             </div>
             <div className="grid gap-2">
@@ -87,16 +87,15 @@ export default function LoginForm({ }: Props) {
                   Forgot your password?
                 </Link>
               </div>
-                            <Input id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                             />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-                        <Button
-                            type="submit"
-                            className="w-full">
+            <Button type="submit" className="w-full">
               Login
             </Button>
           </form>
@@ -118,5 +117,5 @@ export default function LoginForm({ }: Props) {
         />
       </div>
     </div>
-      )
-    }
+  );
+}
