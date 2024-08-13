@@ -19,16 +19,9 @@ export default function RootLayout({
     <AuthProvider>
       <html lang="en">
       <body>
-        <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-        >
             <NavBar/> 
           {children}
           <Footer/>
-          </ThemeProvider>
           </body>
       </html>
       </AuthProvider>
