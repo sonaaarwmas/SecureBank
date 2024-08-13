@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import LoginImage from "../../public/hero-img/hero-image-2.jpeg";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../context/AuthContext"
 
 type Props = {};
 
@@ -16,6 +17,7 @@ export default function LoginForm({}: Props) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { setIsAuthenticated, setUsername } = useAuth();
 
   const validateEmail = (email: string) => {
     const re = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}/;
@@ -44,7 +46,12 @@ export default function LoginForm({}: Props) {
       if (!response.ok) {
         throw new Error(responseData.detail || "Login failed");
       }
+      // updating auth context and redirecting 
+      localStorage.setItem('authCookie', responseData.cookie);
+      setIsAuthenticated(true);
+      setUsername(responseData.userName);
       router.push("/transactions");
+
     } catch (err: any) {
       console.error("Error occurred during login:", err);
       setError(
