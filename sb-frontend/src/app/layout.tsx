@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import { DesktopNav } from "@/components/navbar";
+import { NavBar } from "@/components/navbar";
 import Footer from "@/components/footer";
+import { AuthProvider } from "../../context/AuthContext";
 
 export const metadata: Metadata = {
   title: "SecureBank",
@@ -10,11 +11,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
+  children
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
+    <AuthProvider>
       <html lang="en">
       <body>
         <ThemeProvider
@@ -23,11 +25,12 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
         >
-          <DesktopNav /> 
+            <NavBar/> 
           {children}
           <Footer/>
           </ThemeProvider>
           </body>
       </html>
+      </AuthProvider>
   );
 }
