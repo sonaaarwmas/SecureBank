@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -9,15 +9,17 @@ interface AuthContextProps {
   setUsername: (value: string | null) => void;
   cash: number;
   setCash: (value: number) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps>({
-  isAuthenticated: false,
-  setIsAuthenticated: () => {},
-  username: null,
-  setUsername: () => {},
-  cash: 0,
-  setCash: () => {},
+    isAuthenticated: false,
+    setIsAuthenticated: () => {},
+    username: null,
+    setUsername: () => {},
+    cash: 0,
+    setCash: () => {},
+    logout: () => {}, 
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -46,8 +48,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setCash(value);
   };
 
+  const logout = () => {
+    console.log("Logging out");
+    setIsAuthenticated(false);
+    setUsername(null);
+    setCash(0);
+    localStorage.removeItem("authCookie");
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated: handleSetIsAuthenticated, username, setUsername: handleSetUsername, cash, setCash: handleSetCash }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        setIsAuthenticated: handleSetIsAuthenticated,
+        username,
+        setUsername: handleSetUsername,
+        cash,
+        setCash: handleSetCash,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
