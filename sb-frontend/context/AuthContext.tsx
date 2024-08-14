@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -9,17 +9,19 @@ interface AuthContextProps {
   setUsername: (value: string | null) => void;
   cash: number;
   setCash: (value: number) => void;
-  logout: () => void;
+    logout: () => void;
+    refreshAuthState: () => void; 
 }
 
 const AuthContext = createContext<AuthContextProps>({
-    isAuthenticated: false,
-    setIsAuthenticated: () => {},
-    username: null,
-    setUsername: () => {},
-    cash: 0,
-    setCash: () => {},
-    logout: () => {}, 
+  isAuthenticated: false,
+  setIsAuthenticated: () => {},
+  username: null,
+  setUsername: () => {},
+  cash: 0,
+  setCash: () => {},
+    logout: () => { },
+    refreshAuthState: () => {}, 
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -28,25 +30,22 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+function getCookie(name: string): string | undefined {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    const cookiePart = parts.pop();
+    if (cookiePart !== undefined) {
+      return cookiePart.split(';').shift();
+    }
+  }
+  return undefined;
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [cash, setCash] = useState(0);
-
-  const handleSetIsAuthenticated = (value: boolean) => {
-    console.log("Setting isAuthenticated to:", value);
-    setIsAuthenticated(value);
-  };
-
-  const handleSetUsername = (value: string | null) => {
-    console.log("Setting username to:", value);
-    setUsername(value);
-  };
-
-  const handleSetCash = (value: number) => {
-    console.log("Setting cash to:", value);
-    setCash(value);
-  };
 
   const logout = () => {
     console.log("Logging out");
@@ -54,18 +53,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUsername(null);
     setCash(0);
     localStorage.removeItem("authCookie");
+      document.cookie = "authCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      refreshAuthState();
   };
+
+  const refreshAuthState = () => {
+    const authCookie = getCookie('authCookie') || localStorage.getItem("authCookie");
+    if (authCookie) {
+      setIsAuthenticated(true);
+      console.log("User Authenticated, cookie or local storage present", authCookie);
+    } else {
+      setIsAuthenticated(false);
+      console.log("User not authenticated");
+    }
+  };
+
+    useEffect(() => {
+        console.log("Initializing AuthContext");
+    refreshAuthState();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
-        setIsAuthenticated: handleSetIsAuthenticated,
+        setIsAuthenticated: (value) => {
+          console.log("Setting isAuthenticated to", value);
+          setIsAuthenticated(value);
+        },
         username,
-        setUsername: handleSetUsername,
+        setUsername: (value) => {
+          console.log("Setting username to", value);
+          setUsername(value);
+        },
         cash,
-        setCash: handleSetCash,
+        setCash: (value) => {
+          console.log("Setting cash to", value);
+          setCash(value);
+        },
         logout,
+        refreshAuthState, 
       }}
     >
       {children}
