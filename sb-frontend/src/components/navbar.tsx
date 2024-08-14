@@ -16,9 +16,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; 
+import dynamic from 'next/dynamic';
+
+// Fix hydration issues by using Next.js Dynamic Import to render the Menu Icon only on the client side 
+const DynamicMenu = dynamic(() => import('lucide-react').then(mod => mod.Menu), {
+  ssr: false,
+});
 
 interface RouteProps {
   href: string;
@@ -58,7 +63,6 @@ const authenticatedRoutes: RouteProps[] = [
 export function NavBar() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const { isAuthenticated, username, cash, logout, refreshAuthState } = useAuth();
-  const [hasMounted, setHasMounted] = useState<boolean>(false);
   const routes = isAuthenticated ? authenticatedRoutes : unathenticatedRoutes;
   const router = useRouter(); 
 
@@ -70,47 +74,17 @@ export function NavBar() {
   useEffect(() => {
     console.log("NavBar re-rendered, refreshing auth state");
     refreshAuthState();
-    setHasMounted(true);
   }, [refreshAuthState]);
-
-  if (!hasMounted) {
-    // Render a minimal version of the NavBar on the server
-    return (
-      <header className="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background">
-        <NavigationMenu className="mx-auto">
-          <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between ">
-            <NavigationMenuItem className="flex gap-4 max-w-48 sm:max-w-36">
-              <a
-                rel="noreferrer noopener"
-                href="/"
-                className="ml-2 font-bold text-xl flex"
-              >
-                <Image
-                  src={Logo}
-                  alt="logo"
-                  sizes="100vw"
-                  style={{
-                    width: "auto",
-                    height: "auto",
-                  }}
-                />
-              </a>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </header>
-    );
-  }
 
   return (
     <header className="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background">
       <NavigationMenu className="mx-auto">
-        <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between ">
+        <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between items-center">
           <NavigationMenuItem className="flex gap-4 max-w-48 sm:max-w-36">
             <a
               rel="noreferrer noopener"
               href="/"
-              className="ml-2 font-bold text-xl flex"
+              className="ml-2 font-bold text-xl flex items-center"
             >
               <Image
                 src={Logo}
@@ -130,13 +104,13 @@ export function NavBar() {
               open={isOpen}
               onOpenChange={setIsOpen}
             >
-              <SheetTrigger className="px-2">
-                <Menu
-                  className="flex md:hidden h-5 w-5 mr-10"
-                  onClick={() => setIsOpen(true)}
-                >
-                  <span className="sr-only">Menu Icon</span>
-                </Menu>
+              <SheetTrigger asChild>
+                <button className="px-2" aria-label="Open menu">
+                  <DynamicMenu
+                    className="h-5 w-5 mr-10"
+                    onClick={() => setIsOpen(true)}
+                  />
+                </button>
               </SheetTrigger>
 
               <SheetContent side={"left"}>
@@ -161,7 +135,7 @@ export function NavBar() {
                       <span className="text-sm">
                         {username} with ${cash}
                       </span>
-                      <button onClick={handleLogout} className=" bg-blue-500 px-2 py-2 rounded text-sm">
+                      <button onClick={handleLogout} className="bg-blue-500 px-2 py-2 rounded text-sm">
                         Logout
                       </button>
                     </div>
@@ -187,8 +161,8 @@ export function NavBar() {
           </nav>
 
           {isAuthenticated && (
-            <div className="hidden md:flex justify-between gap-2 ">
-              <span className="text-sm text-center flex">
+            <div className="hidden md:flex justify-between gap-2 items-center">
+              <span className="text-sm text-center flex items-center">
                 {username} with ${cash}
               </span>
               <button onClick={handleLogout} className="text-[17px] bg-blue-500 text-white px-4 py-2 rounded">
