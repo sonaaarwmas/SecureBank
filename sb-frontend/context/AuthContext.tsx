@@ -9,8 +9,8 @@ interface AuthContextProps {
   setUsername: (value: string | null) => void;
   cash: number;
   setCash: (value: number) => void;
-    logout: () => void;
-    refreshAuthState: () => void; 
+  logout: () => void;
+  refreshAuthState: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps>({
@@ -20,8 +20,8 @@ const AuthContext = createContext<AuthContextProps>({
   setUsername: () => {},
   cash: 0,
   setCash: () => {},
-    logout: () => { },
-    refreshAuthState: () => {}, 
+  logout: () => {},
+  refreshAuthState: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -36,7 +36,7 @@ function getCookie(name: string): string | undefined {
   if (parts.length === 2) {
     const cookiePart = parts.pop();
     if (cookiePart !== undefined) {
-      return cookiePart.split(';').shift();
+      return cookiePart.split(";").shift();
     }
   }
   return undefined;
@@ -53,23 +53,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUsername(null);
     setCash(0);
     localStorage.removeItem("authCookie");
-      document.cookie = "authCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      refreshAuthState();
+    document.cookie =
+      "authCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    refreshAuthState();
   };
 
   const refreshAuthState = () => {
-    const authCookie = getCookie('authCookie') || localStorage.getItem("authCookie");
+    const authCookie =
+      getCookie("authCookie") || localStorage.getItem("authCookie");
     if (authCookie) {
       setIsAuthenticated(true);
-      console.log("User Authenticated, cookie or local storage present", authCookie);
+      console.log(
+        "User Authenticated, cookie or local storage present",
+        authCookie
+      );
     } else {
       setIsAuthenticated(false);
       console.log("User not authenticated");
     }
   };
 
-    useEffect(() => {
-        console.log("Initializing AuthContext");
+  useEffect(() => {
+    console.log("Initializing AuthContext");
     refreshAuthState();
   }, []);
 
@@ -92,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setCash(value);
         },
         logout,
-        refreshAuthState, 
+        refreshAuthState,
       }}
     >
       {children}
