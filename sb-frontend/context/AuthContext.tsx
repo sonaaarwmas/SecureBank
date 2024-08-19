@@ -47,6 +47,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [username, setUsername] = useState<string | null>(null);
   const [cash, setCash] = useState(0);
 
+  const fetchCash = async (username: string) => {
+    try {
+      const response = await fetch(`http://localhost:1337/api/User/GetAvailableFunds?user=${username}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setCash(data.balance);
+    } catch (error) {
+      console.error("Failed to fetch cash amount", error);
+    }
+  };
+
   const logout = () => {
     console.log("Logging out");
     setIsAuthenticated(false);
@@ -77,6 +90,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log("Initializing AuthContext");
     refreshAuthState();
   }, []);
+
+  useEffect(() => {
+    if (username) {
+      fetchCash(username);
+    }
+  }, [username]);
 
   return (
     <AuthContext.Provider
