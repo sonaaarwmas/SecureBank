@@ -91,54 +91,77 @@ export default function Transactions({}: Props) {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="p-8">
+    <div className="p-8 mx-auto">
       <Card>
-        <CardHeader className="px-7">
+        <CardHeader className="px-7 background-primary">
           <CardTitle>Transactions</CardTitle>
           <CardDescription>Recent transactions</CardDescription>
         </CardHeader>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Sender</TableHead>
-              <TableHead className="hidden sm:table-cell">Receiver</TableHead>
-              <TableHead className="hidden sm:table-cell">Reason</TableHead>
-              <TableHead className="hidden md:table-cell">
-                Transaction Date
-              </TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">View</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell>
-                  <div className="font-medium">{transaction.senderId}</div>
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  {transaction.receiverId}
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  {transaction.reason}
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {transaction.dateTime}
-                </TableCell>
-                <TableCell className="text-right">
-                  {transaction.amount.toFixed(2)}€
-                </TableCell>
-                <TableCell className="text-right">
-                  <a href={`/Transaction/Details/${transaction.id}`}>
-                    <button className="btn btn-secondary btn-sm">
-                      Details
-                    </button>
-                  </a>
-                </TableCell>
+        <CardContent>
+          <Table className="border">
+            <TableHeader className="bg-slate-100">
+              <TableRow>
+                <TableHead>Sender</TableHead>
+                <TableHead className="hidden sm:table-cell">Receiver</TableHead>
+                <TableHead className="hidden sm:table-cell">Reason</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Transaction Date
+                </TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">View</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {transactions.map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell>
+                    <div className="font-medium">{transaction.senderId}</div>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    {transaction.receiverId}
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    {transaction.reason}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {transaction.dateTime}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {transaction.amount.toFixed(2)}€
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <a href={`/Transaction/Details/${transaction.id}`}>
+                      <button className="btn btn-secondary btn-sm">
+                        Details
+                      </button>
+                    </a>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="mt-8 p-8 items-center">
+            <form
+              method="post"
+              encType="multipart/form-data"
+              action="http://localhost:1337/upload/UploadTransactions"
+            >
+              <div className="form-group row">
+                <div className="col-md-3">
+                  <p>Upload one or more transactions in .xml:</p>
+                  <input type="file" name="files" accept=".xml" />
+                </div>
+                <div className="col-md-2 align-center">
+                  <input
+                    type="submit"
+                    value="Upload"
+                    className="btn btn-primary"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );
