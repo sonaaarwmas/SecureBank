@@ -17,8 +17,16 @@ import {
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
-import { buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type Transaction = {
   senderId: string;
@@ -37,6 +45,14 @@ export default function Transactions({}: Props) {
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+
+
+  // Auth check 
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push("/login");
+  //     return;
+  //   }
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -67,6 +83,30 @@ export default function Transactions({}: Props) {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
+  const TransactionDetailsDialog = ({ transaction }: { transaction: Transaction }) => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="link">Details</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Details of transaction</DialogTitle>
+          <DialogDescription>
+            <div>
+              <p><strong>SenderId:</strong> {transaction.senderId}</p>
+              <p><strong>ReceiverId:</strong> {transaction.receiverId}</p>
+              <p><strong>TransactionDateTime:</strong> {transaction.dateTime}</p>
+              <p><strong>Reason:</strong> {transaction.reason}</p>
+              <p><strong>Amount:</strong> {transaction.amount.toFixed(2)}€</p>
+              <p><strong>Reference:</strong> {transaction.id}</p>
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+
+
   return (
     <div className="p-8 mx-auto">
       <Card>
@@ -78,7 +118,7 @@ export default function Transactions({}: Props) {
             </CardHeader>
             </div>
             <div className="justify-items-end p-6 mr-1">
-            <Link href="/transactions/create"className={buttonVariants({ variant: "secondary" })}>Create New Transaction</Link>
+            <Link href="/transactions/create"className={buttonVariants({ variant: "link" })}>Create New Transaction</Link>
           </div>
             </div>
         <CardContent>
@@ -114,11 +154,7 @@ export default function Transactions({}: Props) {
                     {transaction.amount.toFixed(2)}€
                   </TableCell>
                   <TableCell className="text-right">
-                    <a href={`/Transaction/Details/${transaction.id}`}>
-                      <button className="btn btn-secondary btn-sm">
-                        Details
-                      </button>
-                    </a>
+                  <TransactionDetailsDialog transaction={transaction} />
                   </TableCell>
                 </TableRow>
               ))}
