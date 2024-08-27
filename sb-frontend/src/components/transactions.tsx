@@ -46,8 +46,7 @@ export default function Transactions({}: Props) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
-
-  // Auth check 
+  // Auth check
   // useEffect(() => {
   //   if (!isAuthenticated) {
   //     router.push("/login");
@@ -83,22 +82,26 @@ export default function Transactions({}: Props) {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  const TransactionDetailsDialog = ({ transaction }: { transaction: Transaction }) => (
+  const TransactionDetailsDialog = ({
+    transaction,
+  }: {
+    transaction: Transaction;
+  }) => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="link">Details</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Details of transaction</DialogTitle>
+          <DialogTitle>Details of the Transaction</DialogTitle>
           <DialogDescription>
-            <div>
-              <p><strong>SenderId:</strong> {transaction.senderId}</p>
-              <p><strong>ReceiverId:</strong> {transaction.receiverId}</p>
-              <p><strong>TransactionDateTime:</strong> {transaction.dateTime}</p>
-              <p><strong>Reason:</strong> {transaction.reason}</p>
-              <p><strong>Amount:</strong> {transaction.amount.toFixed(2)}€</p>
-              <p><strong>Reference:</strong> {transaction.id}</p>
+            <div className="justify-between p-6">
+              <p>Transaction ID: {transaction.id}</p>
+              <p>Sender: {transaction.senderId}</p>
+              <p> Receiver: {transaction.receiverId}</p>
+              <p>Transaction Date: {transaction.dateTime}</p>
+              <p>Reason: {transaction.reason}</p>
+              <p> Amount: €{transaction.amount.toFixed(2)}</p>
             </div>
           </DialogDescription>
         </DialogHeader>
@@ -106,21 +109,25 @@ export default function Transactions({}: Props) {
     </Dialog>
   );
 
-
   return (
-    <div className="p-8 mx-auto">
+    <div className="p-6 mx-auto">
       <Card>
-        <div className="grid grid-cols-2 justify-between">
-          <div>
-        <CardHeader className="px-7 background-primary">
-          <CardTitle>Transactions</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+          <div className="flex flex-col items-start">
+            <CardHeader className="px-7 background-primary">
+              <CardTitle>Transactions</CardTitle>
               <CardDescription>Recent transactions</CardDescription>
             </CardHeader>
-            </div>
-            <div className="justify-items-end p-6 mr-1">
-            <Link href="/transactions/create"className={buttonVariants({ variant: "link" })}>Create New Transaction</Link>
           </div>
+          <div className="flex flex-col md:items-end md:justify-end md:p-8 px-7 py-4 items-start">
+              <Link
+                href="/transactions/create"
+                className={buttonVariants({ variant: "default" })}
+              >
+                Create New Transaction
+              </Link>
             </div>
+        </div>
         <CardContent>
           <Table className="border">
             <TableHeader className="bg-slate-100">
@@ -151,35 +158,43 @@ export default function Transactions({}: Props) {
                     {transaction.dateTime}
                   </TableCell>
                   <TableCell className="text-right">
-                    {transaction.amount.toFixed(2)}€
+                    €{transaction.amount.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">
-                  <TransactionDetailsDialog transaction={transaction} />
+                    <TransactionDetailsDialog transaction={transaction} />
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <div className="mt-8 p-8 items-center">
-            <form
-              method="post"
-              encType="multipart/form-data"
-              action="http://localhost:1337/upload/UploadTransactions"
-            >
-              <div className="form-group row">
-                <div className="col-md-3">
-                  <p>Upload one or more transactions in .xml:</p>
-                  <input type="file" name="files" accept=".xml" />
+          <div className="grid grid-cols-1 grid-rows-2 gap-2">
+            <div className="p-6 flex justify-start items-center">
+              <form
+                method="post"
+                encType="multipart/form-data"
+                action="http://localhost:1337/upload/UploadTransactions"
+                className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4"
+              >
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600">
+                    Upload one or more transactions in .xml:
+                  </p>
+                  <input
+                    type="file"
+                    name="files"
+                    accept=".xml"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
                 </div>
-                <div className="col-md-2 align-center">
+                <div>
                   <input
                     type="submit"
                     value="Upload"
-                    className="btn btn-primary"
+                    className="w-full md:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   />
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </CardContent>
       </Card>
