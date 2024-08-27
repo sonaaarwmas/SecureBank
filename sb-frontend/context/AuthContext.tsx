@@ -11,6 +11,7 @@ interface AuthContextProps {
   setCash: (value: number) => void;
   logout: () => void;
   refreshAuthState: () => void;
+  loading: boolean; 
 }
 
 const AuthContext = createContext<AuthContextProps>({
@@ -21,7 +22,8 @@ const AuthContext = createContext<AuthContextProps>({
   cash: 0,
   setCash: () => {},
   logout: () => {},
-  refreshAuthState: () => {},
+  refreshAuthState: () => { },
+  loading: true, 
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -46,6 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [cash, setCash] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const fetchCash = async (username: string) => {
     try {
@@ -66,25 +69,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUsername(null);
     setCash(0);
     localStorage.removeItem("authCookie");
-    document.cookie =
-      "authCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    localStorage.removeItem("username");
+    document.cookie = "authCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     refreshAuthState();
   };
 
-  const refreshAuthState = () => {
-    const authCookie =
-      getCookie("authCookie") || localStorage.getItem("authCookie");
-    if (authCookie) {
+  const refreshAuthState = async () => {
+    const authCookie = getCookie("authCookie") || localStorage.getItem("authCookie");
+    const storedUsername = localStorage.getItem("username");
+    if (authCookie && storedUsername) {
       setIsAuthenticated(true);
-      console.log(
-        "User Authenticated, cookie or local storage present",
-        authCookie
-      );
+      setUsername(storedUsername);
+      fetchCash(storedUsername);
+      console.log("User Authenticated, cookie or local storage present", authCookie);
     } else {
       setIsAuthenticated(false);
+      setUsername(null);
+      setCash(0);
       console.log("User not authenticated");
     }
+    setLoading(false);
   };
+  
 
   useEffect(() => {
     console.log("Initializing AuthContext");
@@ -93,6 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (username) {
+      console.log("Fetching cash for username:", username);
       fetchCash(username);
     }
   }, [username]);
@@ -117,6 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
         logout,
         refreshAuthState,
+        loading, 
       }}
     >
       {children}

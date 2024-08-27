@@ -62,19 +62,21 @@ const authenticatedRoutes: RouteProps[] = [
 
 export function NavBar() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { isAuthenticated, username, cash, logout, refreshAuthState } = useAuth();
+  const { isAuthenticated, username, cash, logout, loading } = useAuth();
   const routes = isAuthenticated ? authenticatedRoutes : unathenticatedRoutes;
   const router = useRouter(); 
+  
 
   const handleLogout = () => {
     logout();
     router.push("/"); 
   };
 
-  useEffect(() => {
-    console.log("NavBar re-rendered, refreshing auth state");
-    refreshAuthState();
-  }, [refreshAuthState]);
+
+  // wait for auth context to load 
+  if (loading) {
+    return null; 
+  }
 
   return (
     <header className="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background">

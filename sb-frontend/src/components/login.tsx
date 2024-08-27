@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import LoginImage from "../../public/hero-img/hero-image-2.jpeg";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../context/AuthContext"
+import { useAuth } from "../../context/AuthContext";
 
 type Props = {};
 
@@ -48,6 +48,7 @@ export default function LoginForm({}: Props) {
       }
       // updating auth context and redirecting 
       localStorage.setItem('authCookie', responseData.cookie);
+      localStorage.setItem("username", email);
       setIsAuthenticated(true);
       setUsername(responseData.userName);
       router.push("/transactions");
