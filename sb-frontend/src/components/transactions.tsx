@@ -43,16 +43,8 @@ export default function Transactions({}: Props) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
-
-  // Auth check
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     router.push("/login");
-  //     return;
-  //   }
-
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
@@ -75,10 +67,17 @@ export default function Transactions({}: Props) {
         setLoading(false);
       }
     };
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        router.push("/login");
+        return;
+      } else {
+        fetchTransactions();
+      }
+    }
+  }, [isAuthenticated, authLoading, router]);
 
-    fetchTransactions();
-  }, [isAuthenticated, router]);
-
+  if (authLoading) return <p>Checking authentication...</p>;
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -120,13 +119,13 @@ export default function Transactions({}: Props) {
             </CardHeader>
           </div>
           <div className="flex flex-col md:items-end md:justify-end md:p-8 px-7 py-4 items-start">
-              <Link
-                href="/transactions/create"
-                className={buttonVariants({ variant: "default" })}
-              >
-                Create New Transaction
-              </Link>
-            </div>
+            <Link
+              href="/transactions/create"
+              className={buttonVariants({ variant: "default" })}
+            >
+              Create New Transaction
+            </Link>
+          </div>
         </div>
         <CardContent>
           <Table className="border">
