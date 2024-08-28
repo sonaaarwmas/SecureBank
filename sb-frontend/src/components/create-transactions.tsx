@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../context/AuthContext"
 
 export default function CreateTransactions() {
   const [senderId, setSenderId] = useState<string>("");
@@ -11,6 +12,13 @@ export default function CreateTransactions() {
   const [amount, setAmount] = useState<string>("");
   const [error, setError] = useState<string>("");
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +62,8 @@ export default function CreateTransactions() {
       setError(error.message);
     }
   };
+
+  if (authLoading) return <p>Checking authentication...</p>
 
   return (
     <div className="container mx-auto p-4 mt-8">
