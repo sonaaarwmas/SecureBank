@@ -18,6 +18,47 @@ This project aims to redesign the frontend of SecureBank, an open-source educati
 
 The new frontend will include a login/signup flow, a dashboard with account overview and recent transactions, a transaction history view, and potentially additional features like a product store and search functionality.
 
+### Frontend Architecture and Authentication Handling 
+
+#### Overview
+The frontend architecture of this project is built using React with Next.js, TypeScript, and Tailwind CSS. It leverages the existing backend built in C# and .NET. It has deliberate security vulnerabilities in line with the aim of the SecureBank project. The authentication mechanism is centralised using a context provider (`AuthContext.tsx`) to manage user authentication state across components. This approach ensures that authentication state is consistent and accessible throughout the application.
+
+#### Authentication Context (`context/AuthContext.tsx`)
+The `AuthContext` is created using React's `createContext` and is provided to the application via the `AuthProvider` component. This context manages the following states:
+- `isAuthenticated`: A boolean indicating whether the user is authenticated.
+- `username`: The username of the authenticated user.
+- `cash`: The available funds of the user, fetched from the existing backend API.
+- `loading`: A boolean indicating whether the authentication state is being loaded.
+
+The `AuthProvider` component also handles:
+- **Authentication State Refresh**: It checks for an authentication cookie or local storage item to determine if the user is authenticated.
+- **Logout**: It clears the authentication state and removes the authentication cookie and local storage items.
+- **Fetching Cash Amount**: It fetches the user's available funds from the backend when the username changes.
+
+#### Login Component (`login.tsx`)
+The `LoginForm` component handles user login by sending a POST request to the backend's `/api/Auth/Login` endpoint with the user's credentials. Upon successful login, it stores the authentication token in local storage and updates the authentication state in the `AuthContext`.
+
+#### Transactions Component (`transactions.tsx`)
+The `Transactions` component fetches and displays the user's transactions. It uses the `useAuth` hook to access the authentication state and redirects the user to the login page if they are not authenticated. The component sends a GET request to the backend's `/api/Transaction/GetTransactions` endpoint to fetch the transactions.
+
+#### Navbar Component (`navbar.tsx`)
+The `NavBar` component displays navigation links based on the authentication state. It uses the `useAuth` hook to access the authentication state and displays the user's username and available funds if they are authenticated. The component also provides a logout button that calls the `logout` function from the `AuthContext`.
+
+#### Authentication Handling and Potential Security Issues
+1. **Client-Side Authentication State**: The authentication state is managed on the client side, which can be vulnerable to manipulation. However, the backend should still validate the authentication token for each protected API request.
+2. **Local Storage for Tokens**: Storing authentication tokens in local storage can make them vulnerable to cross-site scripting (XSS) attacks. 
+3. **Password Handling**: The login component directly sends the user's password in a POST request. Making it vulnerable. 
+
+#### Backend Communication
+The frontend communicates with the backend running on `localhost:1337` using fetch API requests. The backend endpoints are used for authentication, fetching user data, and managing transactions. The frontend includes credentials (cookies) in the requests to maintain session state.
+
+### Conclusion
+The frontend architecture leverages React's context API to manage authentication state centrally, ensuring consistency and accessibility across components. The authentication mechanism relies on client-side state management and local storage for tokens, which introduces potential security risks. The frontend communicates with the backend using RESTful API endpoints, ensuring that the backend validates authentication tokens for protected resources.
+
+## Future Suggestions 
+
+
+
 ## Application
 
 ### Existing Architecture 
@@ -90,8 +131,15 @@ tester@ssrd.io:test
 - [x] Create post-auth routes 
 - [x] Build Basic Dashboard View
 - [x] Develop Transactions Overview
-- [ ] Create Store Page
-- [ ] Integrate with SecureBank back end endpoints 
+- [x] Integrate with SecureBank back end endpoints 
+- [x] Being able to create new users connecting to existing backend endpoints
+- [x] Transactions page shows transactions 
+- [x] Auth management (login page stores)
+
+
+
+## How auth is handled in the front end / existing backend 
+
 
 ## References
 

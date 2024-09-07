@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext"
+import { Combobox } from "./combobox";
 
 export default function CreateTransactions() {
   const [senderId, setSenderId] = useState<string>("");
@@ -11,14 +12,21 @@ export default function CreateTransactions() {
   const [reference, setReference] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [users, setUsers] = useState<string[]>([]);
   const router = useRouter();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading, username} = useAuth();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, authLoading, router]);
+
+  useEffect(() => {
+    if (username) {
+      setSenderId(username);
+    }
+  }, [username]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +71,18 @@ export default function CreateTransactions() {
     }
   };
 
-  if (authLoading) return <p>Checking authentication...</p>
+  const fetchUsers = async (query: string) => {
+    try {
+      const response = await fetch(`/api/Search/FindUser?query=${query}`);
+      if (!response.ok) throw new Error("Failed to fetch users");
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  if (authLoading) return <p>Checking authentication...</p>;
 
   return (
     <div className="container mx-auto p-4 mt-8">
@@ -83,9 +102,9 @@ export default function CreateTransactions() {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 type="text"
-                placeholder="Sender e-mail"
+                placeholder={senderId}
                 value={senderId}
-                onChange={(e) => setSenderId(e.target.value)}
+                readOnly
               />
             </div>
             <div className="mb-4">
